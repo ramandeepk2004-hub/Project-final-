@@ -11,8 +11,9 @@ services:
       - key: ALLOWED_ORIGINS
         value: https://omni-translator-frontend.onrender.com
 
-  - type: static_site
+  - type: web
     name: omni-translator-frontend
+    runtime: static
     rootDir: frontend
     buildCommand: npm ci && npm run build
     staticPublishPath: dist
