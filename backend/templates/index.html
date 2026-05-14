@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OmniTranslator</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <div class="app-bg"></div>
+    <div class="app-layout">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-brand">
+                <div class="brand-icon">OT</div>
+                <div class="brand-copy">
+                    <strong>OmniTranslator</strong>
+                    <span>Antigravity Translate</span>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav" id="sidebar-nav">
+                <button class="sidebar-item" data-view="chat">
+                    <i data-lucide="message-square"></i>
+                    <span>Chat</span>
+                </button>
+                <button class="sidebar-item" data-view="conversation">
+                    <i data-lucide="messages-square"></i>
+                    <span>Conversation</span>
+                </button>
+                <button class="sidebar-item" data-view="phrasebook">
+                    <i data-lucide="book-marked"></i>
+                    <span>Phrasebook</span>
+                </button>
+                <button class="sidebar-item" data-view="analytics">
+                    <i data-lucide="chart-column-big"></i>
+                    <span>Analytics</span>
+                </button>
+                <button class="sidebar-item" data-view="history">
+                    <i data-lucide="history"></i>
+                    <span>History</span>
+                </button>
+                <button class="sidebar-item" data-view="settings">
+                    <i data-lucide="settings-2"></i>
+                    <span>Settings</span>
+                </button>
+            </nav>
+
+            <div class="sidebar-tools">
+                <p class="sidebar-tools-title">Language Controls</p>
+                <div class="sidebar-language-stack">
+                    <button id="source-language-btn" class="lang-btn">🌐 Auto Detect</button>
+                    <button id="swap-language-btn" class="lang-swap-btn" aria-label="Swap languages">⇄</button>
+                    <button id="target-language-btn" class="lang-btn">🇬🇧 English</button>
+                </div>
+                <button id="theme-toggle-btn" class="icon-btn sidebar-theme-btn" aria-label="Toggle theme">
+                    <i data-lucide="moon"></i>
+                </button>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="topbar glass-panel">
+                <div class="topbar-left">
+                    <button id="sidebar-toggle" class="icon-btn mobile-only" aria-label="Toggle sidebar">
+                        <i data-lucide="panel-left-open"></i>
+                    </button>
+                    <div class="screen-title" id="screen-title">Chat</div>
+                </div>
+            </header>
+
+            <section id="screen-container">
+                <section id="chat-screen" class="screen chat-screen">
+                    <div class="screen-card hero-card">
+                        <div class="screen-intro">
+                            <p class="eyebrow">Single Translation</p>
+                            <h1>Translate with the flow of a chat assistant.</h1>
+                            <p>Capture speech, review translations, and keep the interface focused on one conversation stream.</p>
+                        </div>
+                        <div class="detected-row">
+                            <div id="chat-status" class="status-text">Tap to speak</div>
+                            <div id="chat-live" class="live-preview"></div>
+                            <div id="chat-detected" class="detected-badge hidden">Detected: -</div>
+                        </div>
+                    </div>
+
+                    <div class="screen-card message-surface">
+                        <div id="chat-messages" class="message-list"></div>
+                    </div>
+
+                    <div class="screen-card composer-card">
+                        <input id="chat-input" class="chat-input" type="text" placeholder="Type for future text translation workflows..." />
+                        <button id="chat-mic" class="record-btn" aria-label="Chat microphone">
+                            <i data-lucide="mic"></i>
+                        </button>
+                    </div>
+                </section>
+
+                <section id="conversation-screen" class="screen hidden">
+                    <div class="screen-card conversation-shell">
+                        <div class="conversation-layout">
+                            <section class="speaker speaker-a">
+                                <div class="speaker-head">
+                                    <p class="eyebrow">Speaker A</p>
+                                    <div id="detected-A" class="detected-badge hidden">Detected: -</div>
+                                </div>
+                                <div id="panel-a-messages" class="panel-messages"></div>
+                                <div class="speaker-status">
+                                    <div id="status-A" class="status-text">Tap A mic</div>
+                                    <div id="live-A" class="live-preview"></div>
+                                </div>
+                            </section>
+
+                            <section class="speaker speaker-b">
+                                <div class="speaker-head">
+                                    <p class="eyebrow">Speaker B</p>
+                                    <div id="detected-B" class="detected-badge hidden">Detected: -</div>
+                                </div>
+                                <div id="panel-b-messages" class="panel-messages"></div>
+                                <div class="speaker-status">
+                                    <div id="status-B" class="status-text">Tap B mic</div>
+                                    <div id="live-B" class="live-preview"></div>
+                                </div>
+                            </section>
+                        </div>
+
+                        <div class="conversation-controls">
+                            <button id="mic-A" class="record-btn" aria-label="Speaker A microphone">
+                                <i data-lucide="mic"></i>
+                            </button>
+                            <button id="mic-B" class="record-btn alt" aria-label="Speaker B microphone">
+                                <i data-lucide="mic"></i>
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="phrasebook-screen" class="screen hidden">
+                    <div class="screen-card phrasebook-shell">
+                        <div class="phrasebook-top">
+                            <div>
+                                <p class="eyebrow">Communication Library</p>
+                                <h2>Phrasebook</h2>
+                            </div>
+                            <input type="text" id="phrase-search" placeholder="Search phrases..." />
+                        </div>
+
+                        <div class="recent-wrap">
+                            <div class="section-title-row">
+                                <h3>Recently Used</h3>
+                            </div>
+                            <div id="recently-used-phrases" class="language-list"></div>
+                        </div>
+
+                        <div class="phrase-categories" id="phrase-categories"></div>
+                        <div id="phrasebook-list" class="phrase-list"></div>
+                    </div>
+                </section>
+
+                <section id="analytics-screen" class="screen hidden">
+                    <div class="screen-card analytics-shell">
+                        <p class="eyebrow">Usage Intelligence</p>
+                        <h2>Analytics</h2>
+                        <div id="analytics-body" class="analytics-grid"></div>
+                    </div>
+                </section>
+
+                <section id="history-screen" class="screen hidden">
+                    <div class="screen-card history-shell">
+                        <p class="eyebrow">Conversation Archive</p>
+                        <h2>History</h2>
+                        <div id="history-list" class="history-list"></div>
+                    </div>
+                </section>
+
+                <section id="settings-screen" class="screen hidden">
+                    <div class="screen-card settings-shell">
+                        <p class="eyebrow">Workspace Controls</p>
+                        <h2>Settings</h2>
+                        <div class="settings-grid">
+                            <button class="settings-tile" data-theme-choice="dark">Dark theme</button>
+                            <button class="settings-tile" data-theme-choice="light">Light theme</button>
+                        </div>
+                    </div>
+                </section>
+            </section>
+        </main>
+    </div>
+
+    <div id="language-modal" class="language-modal hidden" aria-hidden="true">
+        <div class="language-modal-card glass-panel">
+            <div class="language-modal-head">
+                <h3 id="language-modal-title">Select language</h3>
+                <button id="language-modal-close" class="icon-btn" aria-label="Close">✕</button>
+            </div>
+            <div class="language-search-wrap">
+                <input type="text" id="language-search" placeholder="Search languages..." />
+            </div>
+            <div class="language-sections" id="language-sections">
+                <section>
+                    <h4>Popular</h4>
+                    <div id="popular-languages" class="language-list"></div>
+                </section>
+                <section>
+                    <h4>Indian Languages</h4>
+                    <div id="indian-languages" class="language-list"></div>
+                </section>
+                <section>
+                    <h4>All Languages</h4>
+                    <div id="all-languages" class="language-list"></div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="/static/js/app.js"></script>
+</body>
+</html>
