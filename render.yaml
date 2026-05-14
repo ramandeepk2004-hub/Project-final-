@@ -13,14 +13,10 @@ services:
 
   - type: web
     name: omni-translator-frontend
-    runtime: static
+    runtime: node
     rootDir: frontend
     buildCommand: npm ci && npm run build
-    staticPublishPath: dist
-    routes:
-      - type: rewrite
-        source: /*
-        destination: /index.html
+    startCommand: npm run preview -- --host 0.0.0.0 --port $PORT
     envVars:
       - key: VITE_API_BASE_URL
         value: https://omni-translator-backend.onrender.com
