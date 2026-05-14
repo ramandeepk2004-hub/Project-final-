@@ -5,7 +5,14 @@ from pydub import AudioSegment
 import os
 from config import config
 
-model = whisper.load_model(config.whisper_model)
+model = None
+
+
+def _get_model():
+    global model
+    if model is None:
+        model = whisper.load_model(config.whisper_model)
+    return model
 
 
 def speech_to_text(input_path, source_lang="auto"):
@@ -19,7 +26,7 @@ def speech_to_text(input_path, source_lang="auto"):
         transcribe_kwargs["language"] = source_lang
 
     transcribe_kwargs["fp16"] = False
-    result = model.transcribe(wav_path, **transcribe_kwargs)
+    result = _get_model().transcribe(wav_path, **transcribe_kwargs)
 
     os.remove(wav_path)
 

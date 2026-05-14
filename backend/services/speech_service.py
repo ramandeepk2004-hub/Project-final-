@@ -3,7 +3,14 @@ import whisper
 from pydub import AudioSegment
 from config import config
 
-model = whisper.load_model(config.whisper_model)
+_model = None
+
+
+def _get_model():
+    global _model
+    if _model is None:
+        _model = whisper.load_model(config.whisper_model)
+    return _model
 
 
 def speech_to_text(input_path: str, source_lang: str = "auto") -> str:
@@ -15,7 +22,7 @@ def speech_to_text(input_path: str, source_lang: str = "auto") -> str:
     if source_lang and source_lang != "auto":
       transcribe_kwargs["language"] = source_lang
 
-    result = model.transcribe(wav_path, **transcribe_kwargs)
+    result = _get_model().transcribe(wav_path, **transcribe_kwargs)
 
     if os.path.exists(wav_path):
       os.remove(wav_path)
