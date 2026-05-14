@@ -1,22 +1,12 @@
 services:
   - type: web
-    name: omni-translator-backend
-    runtime: python
-    rootDir: backend
-    buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    name: omni-translator-app
+    runtime: docker
+    dockerContext: .
+    dockerfilePath: ./Dockerfile
+    rootDir: .
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.11
       - key: ALLOWED_ORIGINS
-        value: https://omni-translator-frontend.onrender.com
-
-  - type: web
-    name: omni-translator-frontend
-    runtime: node
-    rootDir: frontend
-    buildCommand: npm ci && npm run build
-    startCommand: npm run preview -- --host 0.0.0.0 --port $PORT
-    envVars:
-      - key: VITE_API_BASE_URL
-        value: https://omni-translator-backend.onrender.com
+        value: https://omni-translator-app.onrender.com

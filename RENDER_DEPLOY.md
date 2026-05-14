@@ -1,18 +1,24 @@
-# Render Deployment Notes
+# Render Deployment Notes (Single Web Service)
 
-## Backend (Web Service)
-- Root Directory: `backend`
-- Build Command: `pip install -r requirements.txt`
-- Start Command: `uvicorn main:app --host 0.0.0.0 --port $PORT`
+This project is configured to run frontend + backend in one Render Web Service using Docker.
 
-## Frontend (Static Site)
-- Root Directory: `frontend`
-- Build Command: `npm ci && npm run build`
-- Publish Directory: `dist`
-- Rewrite Rule: `/* -> /index.html`
+## Service
+- Type: `web`
+- Runtime: `docker`
+- Blueprint file: `render.yaml`
+- Dockerfile: `./Dockerfile`
 
-## Required Environment Variables
-- Frontend: `VITE_API_BASE_URL=https://<your-backend-service>.onrender.com`
-- Backend: `ALLOWED_ORIGINS=https://<your-frontend-service>.onrender.com`
+## What runs
+- Vite frontend is built during Docker build.
+- FastAPI backend serves APIs and also serves the built frontend files.
+- Single public URL hosts both app UI and API.
 
-A starter Blueprint is included at repo root as `render.yaml`.
+## Important env vars
+- `ALLOWED_ORIGINS=https://<your-service>.onrender.com`
+- plus secrets from `backend/.env` (Supabase, etc.)
+
+## Deploy
+1. Push code to GitHub.
+2. In Render, create/sync Blueprint from this repo.
+3. Deploy `omni-translator-app`.
+4. Open `https://<your-service>.onrender.com/health` and then root URL.

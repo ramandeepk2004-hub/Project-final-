@@ -31,6 +31,11 @@ STATIC_DIR = os.path.join(BASE_DIR, "static")
 TEMPLATES_DIR = os.path.join(BASE_DIR, "templates")
 TEMP_DIR = os.path.join(BASE_DIR, "temp_audio")
 EXPORTS_DIR = os.path.join(BASE_DIR, "exports")
+FRONTEND_DIST_DIR = os.path.realpath(
+    os.environ.get("FRONTEND_DIST_DIR", os.path.join(BASE_DIR, "..", "frontend", "dist"))
+)
+FRONTEND_INDEX_PATH = os.path.join(FRONTEND_DIST_DIR, "index.html")
+FRONTEND_ASSETS_DIR = os.path.join(FRONTEND_DIST_DIR, "assets")
 
 os.makedirs(OUTPUTS_DIR, exist_ok=True)
 os.makedirs(TEMP_DIR, exist_ok=True)
@@ -47,6 +52,8 @@ app.add_middleware(
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 app.mount("/audio", StaticFiles(directory=OUTPUTS_DIR), name="audio")
 app.mount("/exports", StaticFiles(directory=EXPORTS_DIR), name="exports")
+if os.path.isdir(FRONTEND_ASSETS_DIR):
+    app.mount("/assets", StaticFiles(directory=FRONTEND_ASSETS_DIR), name="frontend-assets")
 
 templates = Jinja2Templates(directory=TEMPLATES_DIR)
 app.include_router(ai_router)
@@ -158,14 +165,20 @@ async def _process_audio_file(
         _safe_remove(input_path)
 
 
-@app.get("/")
-def home(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+def _serve_frontend_index() -> FileResponse:
+    if not os.path.exists(FRONTEND_INDEX_PATH):
+        raise HTTPException(status_code=503, detail="Frontend build not available")
+    return FileResponse(FRONTEND_INDEX_PATH, media_type="text/html")
 
 
 @app.get("/conversation")
-def conversation_home(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+def conversation_home():
+    return _serve_frontend_index()
+
+
+@app.get("/")
+def home():
+    return _serve_frontend_index()
 
 
 @app.get("/health")
@@ -326,3 +339,10 @@ async def export_data(
     output_path, media_type = _build_export_file(format_type, content)
     safe_name = "".join(char for char in filename if char.isalnum() or char in ("-", "_")).strip() or "conversation"
     return FileResponse(output_path, media_type=media_type, filename=f"{safe_name}.{format_type}")
+
+
+@app.get("/{full_path:path}")
+def spa_fallback(full_path: str):
+    if full_path.startswith(("process", "translate", "phrase", "ai", "ws", "audio", "exports", "static", "docs", "openapi", "redoc", "health", "languages")):
+        raise HTTPException(status_code=404, detail="Not found")
+    return _serve_frontend_index()
