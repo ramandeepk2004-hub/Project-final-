@@ -8,7 +8,7 @@ gtts
 pydub
 jinja2
 aiofiles
-audioop-lts
+audioop-lts; python_version >= "3.13"
 requests
 pydantic-settings
 pillow
