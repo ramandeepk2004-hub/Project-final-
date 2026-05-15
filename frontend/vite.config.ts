@@ -9,6 +9,7 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'icons.svg', 'pwa-192.png', 'pwa-512.png', 'maskable-512.png'],
       manifest: {
+        id: '/',
         name: 'Omni Translator',
         short_name: 'OmniTranslate',
         description: 'Real-time translation for speech, text, and images.',
