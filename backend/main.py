@@ -171,6 +171,14 @@ def _serve_frontend_index() -> FileResponse:
     return FileResponse(FRONTEND_INDEX_PATH, media_type="text/html")
 
 
+def _serve_frontend_file(relative_path: str, media_type: str | None = None) -> FileResponse:
+    safe_path = relative_path.lstrip("/").replace("\\", "/")
+    file_path = os.path.realpath(os.path.join(FRONTEND_DIST_DIR, safe_path))
+    if not file_path.startswith(FRONTEND_DIST_DIR) or not os.path.isfile(file_path):
+        raise HTTPException(status_code=404, detail="Not found")
+    return FileResponse(file_path, media_type=media_type)
+
+
 @app.get("/conversation")
 def conversation_home():
     return _serve_frontend_index()
@@ -179,6 +187,16 @@ def conversation_home():
 @app.get("/")
 def home():
     return _serve_frontend_index()
+
+
+@app.get("/manifest.webmanifest")
+def frontend_manifest():
+    return _serve_frontend_file("manifest.webmanifest", media_type="application/manifest+json")
+
+
+@app.get("/sw.js")
+def frontend_service_worker():
+    return _serve_frontend_file("sw.js", media_type="application/javascript")
 
 
 @app.get("/health")
@@ -343,6 +361,8 @@ async def export_data(
 
 @app.get("/{full_path:path}")
 def spa_fallback(full_path: str):
+    if "." in full_path:
+        return _serve_frontend_file(full_path)
     if full_path.startswith(("process", "translate", "phrase", "ai", "ws", "audio", "exports", "static", "docs", "openapi", "redoc", "health", "languages")):
         raise HTTPException(status_code=404, detail="Not found")
     return _serve_frontend_index()
